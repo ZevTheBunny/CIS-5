@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <fstream>
+
 using namespace std; // Libraries compiled under std
 
 //User Level Libraries
@@ -30,10 +31,10 @@ char snkOladd(char,char &);//Figures out if the player landed on a snake or a la
 void snake(char &, char);//Moves the player down a snake.
 void ladder(char &, char);//Moves the player up a ladder.
 
-short getNumPlys(char,char);//Gets the number of players from the user. Inputs min and max players.
+short getNumPlys(char =1,char=40);//Gets the number of players from the user. Inputs min and max players.
 
 float estimate(char);//estimates how long the game will last, pulls from a file if availbe.
-float simulate(char,int);//Simulates a bunch of games to estimate calculate an estimate.
+float simulate(char,int = 100);//Simulates a bunch of games to estimate calculate an estimate.
 bool simRound(char [],char);//Simulates a round.
 
 void play(char);
@@ -44,13 +45,14 @@ int main(int argc, char** argv) {
     //Variable Declarations
     short numPlys=0;//The number of players in this game.
     float rounds=0;//The average amount of turns the game lasts with that amount of players.
-
     //Figures out how many players their are
-    numPlys = getNumPlys(1,4);
+    numPlys = getNumPlys();
     //Figures out the game lenght
-    rounds = estimate(numPlys);
+    //rounds = estimate(numPlys);
     cout<<setprecision(2)<<fixed<<"It will take an average of "<<rounds<<" turns to finish with this many players."<<endl<<endl;
     
+    //Gets names
+
     //The actual game.
     play(numPlys);
     //Clean Up
@@ -148,7 +150,7 @@ void ladder(char &pos, char top){
 }
 
 
-short getNumPlys(char min = 1, char max = 4){
+short getNumPlys(char min , char max ){
     short numPlys =  0;
     do{//Asks for how many players their are until the user gives a valid input.
         cout<<"How many players are there? Enter a number between "<<(short)min<<" and "<<(short)max<<": ";
@@ -182,7 +184,7 @@ float estimate(char numPlys){
             break;
     }
     if (c==false){//If the number of players does not have an average  
-        rounds = simulate(numPlys,100);
+        rounds = simulate(numPlys);
         switch(numPlys){//Sets the propper a to rounds
             case 1:
                 a1 = rounds;
@@ -233,7 +235,7 @@ float estimate(char numPlys){
     average.close();//Closes the file.
     return rounds;
 }
-float simulate(char numPlys,int trials = 100){
+float simulate(char numPlys,int trials){
     int rounds = 0;
     for(int i=0;i<trials;i++){//Plays the game 100 times
         bool win = false;//Wether the game has been won yet.
@@ -304,7 +306,7 @@ void play(char numPlys){
             if (pos[turn] ==100){//Checks if the player landed on 100
                 cout<<"Congradulations Player "<<turn<<" wins!!";//If they did tells them they one
                 win = true;//And sets win to true, ending the loop.
-            }  
+            }                
         }
     };
 }
