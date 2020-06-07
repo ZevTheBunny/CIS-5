@@ -12,7 +12,7 @@
  */
 
 //System Level Libraries 
-#include <iostream> //I/o Libarary
+#include <iostream>
 #include <ctime>
 #include <string>
 #include <cstdlib>
@@ -36,11 +36,11 @@ void play(char);
 //Execution Begins Here!
 int main(int argc, char** argv) {
     //Random Number Seed Set Here
-    srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(30));
     //Variable Declarations
     short numPlys=0;//The number of players in this game.
     float rounds=0;//The average amount of turns the game lasts with that amount of players.
-    
+
     //Figures out how many players their are
     numPlys = getNumPlys();
     //Figures out the game lenght
@@ -145,10 +145,10 @@ void ladder(char &pos, char top){
 
 short getNumPlys(){
     short numPlys =  0;
-    while(numPlys < 1 || numPlys > 4){//Asks for how many players their are until the user gives a valid input.
+    do{//Asks for how many players their are until the user gives a valid input.
         cout<<"How many players are there? Enter a number between 1 and 4: ";
         cin>>numPlys;
-    };
+    }while(numPlys < 1 || numPlys > 4);
     return numPlys;
 }
 
@@ -177,12 +177,14 @@ float simulate(char numPlys){
             if (a4 != 0) c=true;
             break;
     }
-    if (c==false){//If the number of players does not have an average
+    if (c==false){//If the number of players does not have an average  
         for(int i=0;i<100;i++){//Plays the game 100 times
             bool win = false;//Wether the game has been won yet.
             char pos[4] = {0,0,0,0};//The location of players
             do{//Goes until someone has won.
                 for (short turn = 1; turn<=numPlys;turn++){//Does a turn for each player. 
+                    
+                    
                     //Rolls the dice
                     char rollVal (rand()%6 +1),//The roll they got
                          nextVal = pos[turn] + rollVal ;//The place that roll will put them.
@@ -190,10 +192,12 @@ float simulate(char numPlys){
                     if( nextVal <=100){//If their roll will not put them over 100
                         pos[turn] = nextVal;//Moves the player up
                     }
+
                     //Checks for a snake or a ladder
-                    char end;
+                    char end = pos[turn];
                     char sOrl = snkOladd(pos[turn],end);
                     pos[turn] = end;
+
                     //Check if the player wins
                     if (pos[turn] ==100){//Checks if the player landed on 100
                         win = true;//And sets win to true, ending the loop.
@@ -203,9 +207,7 @@ float simulate(char numPlys){
                 rounds ++;//adds to the round counter
             }while(win==false);//if the test game is over
             //Resets the board
-            for(char position: pos){
-                position = 0;
-            }
+            for (char q = 0; q <= 4; q++){pos[q]=0;}
             win = false;
         }
         //Once it has looped through 100 games
@@ -291,7 +293,7 @@ void play(char numPlys){
                 else if (sOrl == 'S') snake(pos[turn],end);
                 
             if (pos[turn] ==100){//Checks if the player landed on 100
-                cout<<"Congradulations Player "<<turn+48<<" wins!!";//If they did tells them they one
+                cout<<"Congradulations Player "<<turn<<" wins!!";//If they did tells them they one
                 win = true;//And sets win to true, ending the loop.
             }  
         }
