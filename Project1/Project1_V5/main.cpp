@@ -26,12 +26,16 @@ using namespace std; // Libraries compiled under std
 //Conversions, Higher Dimensions
 
 //Function Prototypes
-char snkOladd(char,char &);
-void snake(char &, char);
-void ladder(char &, char);
+char snkOladd(char,char &);//Figures out if the player landed on a snake or a ladder.
+void snake(char &, char);//Moves the player down a snake.
+void ladder(char &, char);//Moves the player up a ladder.
 
-short getNumPlys();
-float simulate(char);
+short getNumPlys(char,char);//Gets the number of players from the user. Inputs min and max players.
+
+float estimate(char);//estimates how long the game will last, pulls from a file if availbe.
+float simulate(char,int);//Simulates a bunch of games to estimate calculate an estimate.
+bool simRound(char [],char);//Simulates a round.
+
 void play(char);
 //Execution Begins Here!
 int main(int argc, char** argv) {
@@ -42,9 +46,9 @@ int main(int argc, char** argv) {
     float rounds=0;//The average amount of turns the game lasts with that amount of players.
 
     //Figures out how many players their are
-    numPlys = getNumPlys();
+    numPlys = getNumPlys(1,4);
     //Figures out the game lenght
-    rounds = simulate(numPlys);
+    rounds = estimate(numPlys);
     cout<<setprecision(2)<<fixed<<"It will take an average of "<<rounds<<" turns to finish with this many players."<<endl<<endl;
     
     //The actual game.
@@ -143,21 +147,21 @@ void ladder(char &pos, char top){
     cout<<"You landed on a ladder and climbed to "<<(short)pos<<endl;
 }
 
-short getNumPlys(){
+
+short getNumPlys(char min = 1, char max = 4){
     short numPlys =  0;
     do{//Asks for how many players their are until the user gives a valid input.
-        cout<<"How many players are there? Enter a number between 1 and 4: ";
+        cout<<"How many players are there? Enter a number between "<<(short)min<<" and "<<(short)max<<": ";
         cin>>numPlys;
-    }while(numPlys < 1 || numPlys > 4);
+    }while(numPlys < min || numPlys > max);
     return numPlys;
 }
 
-float simulate(char numPlys){
+float estimate(char numPlys){
     fstream average("average.txt");
     float rounds=0;//The average amount of turns the game lasts with that amount of players.
-
-
     bool c1,c2,c3,c4,c = false;//If the file reading failed
+    c1 = c2 = c3 = c4 = false;
     float a1,a2,a3,a4;//The value in the file
     if(average>>a1)c1=true;//Reads the file for the first value
     if(average>>a2)c2=true;//Reads the file for the secound value
@@ -178,40 +182,7 @@ float simulate(char numPlys){
             break;
     }
     if (c==false){//If the number of players does not have an average  
-        for(int i=0;i<100;i++){//Plays the game 100 times
-            bool win = false;//Wether the game has been won yet.
-            char pos[4] = {0,0,0,0};//The location of players
-            do{//Goes until someone has won.
-                for (short turn = 1; turn<=numPlys;turn++){//Does a turn for each player. 
-                    
-                    
-                    //Rolls the dice
-                    char rollVal (rand()%6 +1),//The roll they got
-                         nextVal = pos[turn] + rollVal ;//The place that roll will put them.
-                    //Moves the player
-                    if( nextVal <=100){//If their roll will not put them over 100
-                        pos[turn] = nextVal;//Moves the player up
-                    }
-
-                    //Checks for a snake or a ladder
-                    char end = pos[turn];
-                    char sOrl = snkOladd(pos[turn],end);
-                    pos[turn] = end;
-
-                    //Check if the player wins
-                    if (pos[turn] ==100){//Checks if the player landed on 100
-                        win = true;//And sets win to true, ending the loop.
-                    }  
-                }
-                //Counts the round
-                rounds ++;//adds to the round counter
-            }while(win==false);//if the test game is over
-            //Resets the board
-            for (char q = 0; q <= 4; q++){pos[q]=0;}
-            win = false;
-        }
-        //Once it has looped through 100 games
-        rounds /=100;//Finds the average amount of turns
+        rounds = simulate(numPlys,100);
         switch(numPlys){//Sets the propper a to rounds
             case 1:
                 a1 = rounds;
@@ -261,6 +232,44 @@ float simulate(char numPlys){
 
     average.close();//Closes the file.
     return rounds;
+}
+float simulate(char numPlys,int trials = 100){
+    int rounds = 0;
+    for(int i=0;i<trials;i++){//Plays the game 100 times
+        bool win = false;//Wether the game has been won yet.
+        char pos[4] = {0,0,0,0};//The location of players
+        do{//Goes until someone has won.
+            win = simRound(pos,numPlys);//Simulates a round
+            rounds ++;//adds to the round counter
+        }while(win==false);//if the test game is over
+        //Resets the board
+        for (char q = 0; q <= 4; q++){pos[q]=0;}
+        win = false;
+    }
+    //Once it has looped through 100 games
+    return (float)rounds /trials;//Finds the average amount of turns
+}
+bool  simRound(char pos[],char numPlys){
+    for (short turn = 1; turn<=numPlys;turn++){//Does a turn for each player. 
+        //Rolls the dice
+        char rollVal (rand()%6 +1),//The roll they got
+             nextVal = pos[turn] + rollVal ;//The place that roll will put them.
+        //Moves the player
+        if( nextVal <=100){//If their roll will not put them over 100
+            pos[turn] = nextVal;//Moves the player up
+        }
+
+        //Checks for a snake or a ladder
+        char end = pos[turn];
+        char sOrl = snkOladd(pos[turn],end);
+        pos[turn] = end;
+
+        //Check if the player wins
+        if (pos[turn] ==100){//Checks if the player landed on 100
+            return true;//And sets win to true, ending the loop.
+        }  
+    }
+    return false;
 }
 
 void play(char numPlys){
