@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /* 
  * File:   main.cpp
@@ -31,7 +26,7 @@ char snkOladd(char,char &);//Figures out if the player landed on a snake or a la
 void snake(char &, char);//Moves the player down a snake.
 void ladder(char &, char);//Moves the player up a ladder.
 
-short getNumPlys(char =1,char=40);//Gets the number of players from the user. Inputs min and max players.
+short getNumPlys(char =1,char=4);//Gets the number of players from the user. Inputs min and max players.
 
 float estimate(char);//estimates how long the game will last, pulls from a file if availbe.
 float simulate(char,int = 100);//Simulates a bunch of games to estimate calculate an estimate.
@@ -309,4 +304,5 @@ void play(char numPlys){
             }                
         }
     };
+    exit(0);
 }
